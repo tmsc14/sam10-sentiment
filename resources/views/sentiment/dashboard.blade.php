@@ -147,7 +147,7 @@
             </div>
         </div>
 
-        <!-- Topic Analysis Section -->
+        <!-- Topic Analysis Section
         <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
             <h2 class="text-xl font-bold mb-4">Topic Analysis</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -159,9 +159,9 @@
                                 Total Feedback: <span class="font-semibold">{{ $stats['count'] }}</span>
                             </p>
                             <div class="flex items-center gap-2">
-                                <span class="text-green-600">😊 {{ $stats['positive_count'] }}</span>
-                                <span class="text-gray-600">😐 {{ $stats['neutral_count'] }}</span>
-                                <span class="text-red-600">😢 {{ $stats['negative_count'] }}</span>
+                                <span class="text-green-600">Positive: {{ $stats['positive_count'] }}</span>
+                                <span class="text-gray-600">Neutral: {{ $stats['neutral_count'] }}</span>
+                                <span class="text-red-600">Negative: {{ $stats['negative_count'] }}</span>
                             </div>
                             <div class="text-sm">
                                 Average Sentiment: 
@@ -174,6 +174,7 @@
                 @endforeach
             </div>
         </div>
+        -->
 
         <!-- Overall Stats -->
         <div class="bg-white rounded-lg shadow-lg p-6">
