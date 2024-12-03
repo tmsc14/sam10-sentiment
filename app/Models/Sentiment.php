@@ -12,7 +12,8 @@ class Sentiment extends Model
         'neg_score',
         'neu_score',
         'compound_score',
-        'keywords' => 'array'
+        'topic',
+        'keywords'
     ];
 
     protected $casts = [

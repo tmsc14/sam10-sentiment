@@ -82,7 +82,7 @@ class SentimentController extends Controller
             $scores = $this->analyzer->getSentiment($text);
 
             $keywords = $this->findInfluentialKeywords($text);
-            $topic = $this->detectTopic($text);
+            $topic = $this->detectBasicTopic($text);
 
             $sentiment = Sentiment::create([
                 'text' => $text,
@@ -124,26 +124,17 @@ class SentimentController extends Controller
         return $influential;
     }
 
-    private function detectTopic($text)
+    private function detectBasicTopic($text)
     {
         $text = strtolower($text);
-        $words = str_word_count($text, 1);
-        $topicScores = [];
-
         foreach ($this->topicKeywords as $topic => $keywords) {
-            $score = 0;
             foreach ($keywords as $keyword) {
                 if (str_contains($text, $keyword)) {
-                    $score++;
+                    return $topic;
                 }
             }
-            $topicScores[$topic] = $score;
         }
-
-        arsort($topicScores);
-        $dominantTopic = key($topicScores);
-        
-        return $topicScores[$dominantTopic] > 0 ? $dominantTopic : 'general';
+        return 'general';
     }
 
     private function highlightKeywords($text)
