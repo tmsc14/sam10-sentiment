@@ -10,11 +10,33 @@ class SentimentController extends Controller
 {
     private $analyzer;
 
-    // Defining sentiment keywords
     private $sentimentKeywords = [
         'positive' => ['excellent', 'amazing', 'good', 'great', 'awesome', 'fantastic', 'outstanding', 'perfect', 'wonderful', 'happy'],
-        'negative' => ['terrible', 'bad', 'poor', 'awful', 'horrible', 'disappointing', 'worst', 'hate', 'frustrated', 'angry'],
+        'negative' => ['terrible', 'bad', 'poor', 'awful', 'horrible', 'disappointing', 'worst', 'hate', 'frustrated', 'angry', 'sad'],
         'neutral' => ['okay', 'fine', 'average', 'normal', 'standard', 'typical', 'moderate', 'fair', 'regular', 'usual']
+    ];
+
+    private $topicKeywords = [
+        'customer_service' => [
+            'service', 'support', 'staff', 'representative', 'help', 'assistance', 
+            'customer', 'agent', 'response', 'communication'
+        ],
+        'product_quality' => [
+            'quality', 'product', 'durability', 'reliable', 'performance', 'works', 
+            'broken', 'defective', 'feature', 'functionality'
+        ],
+        'pricing' => [
+            'price', 'cost', 'expensive', 'cheap', 'affordable', 'value', 
+            'worth', 'pricing', 'money', 'payment'
+        ],
+        'delivery' => [
+            'delivery', 'shipping', 'arrived', 'package', 'shipment', 'late', 
+            'quick', 'fast', 'slow', 'received'
+        ],
+        'user_experience' => [
+            'easy', 'difficult', 'simple', 'complicated', 'intuitive', 'confusing', 
+            'user-friendly', 'interface', 'experience', 'using'
+        ]
     ];
 
     public function __construct()
@@ -35,7 +57,18 @@ class SentimentController extends Controller
             return round($group->avg('compound_score'), 2);
         });
 
-        return view('sentiment.dashboard', compact('sentiments', 'trends'));
+        $topicStats = $sentiments->groupBy('topic')
+            ->map(function ($group) {
+                return [
+                    'count' => $group->count(),
+                    'average_sentiment' => $group->avg('compound_score'),
+                    'positive_count' => $group->where('compound_score', '>=', 0.05)->count(),
+                    'negative_count' => $group->where('compound_score', '<=', -0.05)->count(),
+                    'neutral_count' => $group->whereBetween('compound_score', [-0.05, 0.05])->count(),
+                ];
+            });
+
+        return view('sentiment.dashboard', compact('sentiments', 'trends', 'topicStats'));
     }
 
     public function analyze(Request $request)
@@ -48,8 +81,8 @@ class SentimentController extends Controller
             $text = $request->input('text');
             $scores = $this->analyzer->getSentiment($text);
 
-            // Find influential keywords
             $keywords = $this->findInfluentialKeywords($text);
+            $topic = $this->detectTopic($text);
 
             $sentiment = Sentiment::create([
                 'text' => $text,
@@ -57,7 +90,8 @@ class SentimentController extends Controller
                 'neg_score' => $scores['neg'],
                 'neu_score' => $scores['neu'],
                 'compound_score' => $scores['compound'],
-                'keywords' => $keywords
+                'keywords' => $keywords,
+                'topic' => $topic
             ]);
 
             return response()->json([
@@ -88,6 +122,28 @@ class SentimentController extends Controller
         }
 
         return $influential;
+    }
+
+    private function detectTopic($text)
+    {
+        $text = strtolower($text);
+        $words = str_word_count($text, 1);
+        $topicScores = [];
+
+        foreach ($this->topicKeywords as $topic => $keywords) {
+            $score = 0;
+            foreach ($keywords as $keyword) {
+                if (str_contains($text, $keyword)) {
+                    $score++;
+                }
+            }
+            $topicScores[$topic] = $score;
+        }
+
+        arsort($topicScores);
+        $dominantTopic = key($topicScores);
+        
+        return $topicScores[$dominantTopic] > 0 ? $dominantTopic : 'general';
     }
 
     private function highlightKeywords($text)

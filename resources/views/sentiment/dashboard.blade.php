@@ -52,6 +52,13 @@
                                 <p class="mb-2">{!! $sentiment->highlighted_text !!}</p>
                             </div>
 
+                            <!-- Topic Badge -->
+                            <div class="mb-3">
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                                    Topic: {{ str_replace('_', ' ', ucfirst($sentiment->topic ?? 'General')) }}
+                                </span>
+                            </div>
+
                             <!-- Influential Keywords Section -->
                             @if($sentiment->keywords && count($sentiment->keywords) > 0)
                                 <div class="mb-3 bg-gray-50 p-3 rounded-lg">
@@ -68,7 +75,7 @@
                                     </div>
                                 </div>
                             @endif
-                            
+
                             <!-- Sentiment Emoji Indicator -->
                             <div class="mb-3">
                                 @if($sentiment->compound_score >= 0.05)
@@ -137,6 +144,34 @@
                         </div>
                     @endforeach
                 </div>
+            </div>
+        </div>
+
+        <!-- Topic Analysis Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-bold mb-4">Topic Analysis</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                @foreach($topicStats ?? [] as $topic => $stats)
+                    <div class="border rounded-lg p-4">
+                        <h3 class="font-semibold mb-2 capitalize">{{ str_replace('_', ' ', $topic) }}</h3>
+                        <div class="space-y-2">
+                            <p class="text-sm">
+                                Total Feedback: <span class="font-semibold">{{ $stats['count'] }}</span>
+                            </p>
+                            <div class="flex items-center gap-2">
+                                <span class="text-green-600">😊 {{ $stats['positive_count'] }}</span>
+                                <span class="text-gray-600">😐 {{ $stats['neutral_count'] }}</span>
+                                <span class="text-red-600">😢 {{ $stats['negative_count'] }}</span>
+                            </div>
+                            <div class="text-sm">
+                                Average Sentiment: 
+                                <span class="{{ $stats['average_sentiment'] >= 0.05 ? 'text-green-600' : ($stats['average_sentiment'] <= -0.05 ? 'text-red-600' : 'text-gray-600') }}">
+                                    {{ number_format($stats['average_sentiment'] * 100, 1) }}%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
             </div>
         </div>
 
