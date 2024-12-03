@@ -7,5 +7,5 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/', [SentimentController::class, 'index']);
+Route::get('/sentiment', [SentimentController::class, 'index'])->name('sentiment.analysis');
 Route::post('/analyze', [SentimentController::class, 'analyze']);
