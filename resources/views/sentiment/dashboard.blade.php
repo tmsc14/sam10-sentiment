@@ -40,13 +40,34 @@
                 <canvas id="trendChart"></canvas>
             </div>
 
-        <!-- Latest Results -->
-        <div class="bg-white rounded-lg shadow-lg p-6">
-            <h2 class="text-xl font-bold mb-4">Latest Results</h2>
+            <!-- Latest Results -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-bold mb-4">Latest Results</h2>
                 <div id="results" class="space-y-4 overflow-y-auto max-h-[500px]">
                     @foreach($sentiments as $sentiment)
                         <div class="border-b pb-4">
-                            <p class="mb-2">{{ $sentiment->text }}</p>
+                            <!-- Original Text with Highlighted Keywords -->
+                            <div class="mb-3">
+                                <p class="text-sm font-semibold text-gray-600 mb-1">Analyzed Text:</p>
+                                <p class="mb-2">{!! $sentiment->highlighted_text !!}</p>
+                            </div>
+
+                            <!-- Influential Keywords Section -->
+                            @if($sentiment->keywords && count($sentiment->keywords) > 0)
+                                <div class="mb-3 bg-gray-50 p-3 rounded-lg">
+                                    <p class="text-sm font-semibold mb-2">Key Words Found:</p>
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach($sentiment->keywords as $keyword)
+                                            <span class="text-sm px-2 py-1 rounded-full
+                                                {{ $keyword['type'] === 'positive' ? 'bg-green-100 text-green-800' : 
+                                                   ($keyword['type'] === 'negative' ? 'bg-red-100 text-red-800' : 
+                                                    'bg-gray-100 text-gray-800') }}">
+                                                {{ $keyword['word'] }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
                             
                             <!-- Sentiment Emoji Indicator -->
                             <div class="mb-3">

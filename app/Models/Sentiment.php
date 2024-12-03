@@ -11,13 +11,15 @@ class Sentiment extends Model
         'pos_score',
         'neg_score',
         'neu_score',
-        'compound_score'
+        'compound_score',
+        'keywords' => 'array'
     ];
 
     protected $casts = [
         'pos_score' => 'float',
         'neg_score' => 'float',
         'neu_score' => 'float',
-        'compound_score' => 'float'
+        'compound_score' => 'float',
+        'keywords' => 'array'
     ];
 }
